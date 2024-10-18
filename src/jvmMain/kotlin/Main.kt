@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import rogo.iot.module.platform.callback.RequestCallback
+import rogo.iot.module.rogocore.sdk.SmartSdk
 import ui.theme.dashboard_screen
 import ui.theme.sign_in_screen
 import ui.theme.splash_screen
@@ -44,7 +45,9 @@ fun mainApplication() {
             sign_in_screen -> signInScreen (onSignInSuccess = {
                 currentScreen = dashboard_screen
             })
-            dashboard_screen -> dashboardScreen()
+            dashboard_screen -> dashboardScreen(onSignOut = {
+                currentScreen = sign_in_screen
+            })
         }
     }
 }

@@ -1,6 +1,10 @@
 package Screen
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import rogo.iot.module.cloudapi.auth.callback.AuthRequestCallback
 import rogo.iot.module.platform.ILogR
 import rogo.iot.module.platform.callback.RequestCallback
@@ -19,6 +23,9 @@ fun splashScreen(requestCallback: RequestCallback<Boolean>) {
     } else {
         System.getenv("APPDATA") + "\\RogoUlesa\\"
     }
+    var partner by remember {
+        mutableStateOf("Rogo")
+    }
     val appDataDir = File(appDataPath)
     if (!appDataDir.exists()) {
         appDataDir.mkdirs()
@@ -28,11 +35,22 @@ fun splashScreen(requestCallback: RequestCallback<Boolean>) {
         try {
             ILogR.D(TAG, "ON_CONNECT_SERVICE", "INIT_DESKTOP")
             SmartSdk.isForceProduction = true
-            SmartSdk().initV2(
-                p0,
-                "f07b9dc8912e44ed8b4c6e895acd02c2",
-                "731eee3c8c8ca3de3b178264b7a6a13e80d42f1f1bc1"
-            )
+            when (partner) {
+                "Rogo" -> {
+                    SmartSdk().initV2(
+                        p0,
+                        "e4b75a6b23fc4f30bd5fab35436c6a90",
+                        "964e2c974f001a0468bf2734ce88e96652afff328886"
+                    )
+                }
+                "ThingEdges" -> {
+                    SmartSdk().initV2(
+                        p0,
+                        "f07b9dc8912e44ed8b4c6e895acd02c2",
+                        "731eee3c8c8ca3de3b178264b7a6a13e80d42f1f1bc1"
+                    )
+                }
+            }
             SmartSdk.connectService(object : SmartSdkConnectCallback {
                 override fun onConnected(p0: Boolean) {
                     if (p0) {

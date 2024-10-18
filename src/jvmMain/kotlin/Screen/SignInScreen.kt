@@ -48,8 +48,11 @@ import ui.theme.username_string
 
 @Composable
 fun signInScreen(onSignInSuccess: () -> Unit) {
+//    var email by remember {
+//        mutableStateOf("rgworkspace")
+//    }
     var email by remember {
-        mutableStateOf("rgworkspace")
+        mutableStateOf("tungrogo24@gmail.com")
     }
     var password by remember {
         mutableStateOf("123456")
@@ -163,7 +166,7 @@ fun signInScreen(onSignInSuccess: () -> Unit) {
                 onClick = {
                     toShowDialogLoading.value = true
                     loadingMessage = signing_in
-                    SmartSdk.signIn(email, null, null, "123456", object :
+                    SmartSdk.signIn(null, email, null, "123456", object :
                         AuthRequestCallback {
                         override fun onSuccess() {
                             onSignInSuccess.invoke()

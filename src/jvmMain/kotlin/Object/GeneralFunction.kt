@@ -12,7 +12,7 @@ enum class GeneralFunction (
     companion object {
         fun getGeneralFuncs() = listOf(
             OVERVIEW,
-
+            ALLDEVICES
         )
     }
 }

@@ -4,10 +4,11 @@ import androidx.compose.ui.graphics.Color
 
 val DARK_BLUE = Color(0xFF000F7E)
 val BLUE = Color(0xFF00AAE4)
-val GRAY = Color(0xFFedeef3)
+val GRAY = Color(0xFFD9D9D9)
+val LIGHT_GRAY = Color(0xFFF3F3F3)
 val GREEN = Color(0xFF36cf8a)
 val LIGHT_BLUE = Color(0xFFE6F9FF)
-val BACKGROUND_COLOR = Color(0xFFF7F7F7)
+val BACKGROUND_COLOR = Color(0xFFF4F4F4)
 val LINE_COLOR = Color(0xFFDBDBDB)
 val PURPLE = Color(0xFF9FAAFF)
 val LIGHT_PURPLE = Color(0xFFEEF0FF)
