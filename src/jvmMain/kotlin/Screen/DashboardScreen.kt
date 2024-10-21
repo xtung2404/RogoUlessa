@@ -18,20 +18,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.currentRecomposeScope
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,14 +37,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import rogo.iot.module.cloudapi.auth.callback.AuthRequestCallback
 import rogo.iot.module.rogocore.sdk.SmartSdk
+import ui.theme.BACKGROUND_COLOR
 import ui.theme.GRAY
 import ui.theme.LIGHT_GRAY
+import ui.theme.LIGHT_PINK_COLOR
+import ui.theme.ORANGE_COLOR
 import ui.theme.Roboto
 import ui.theme.RogoSpace
 import ui.theme.Subtitile1
 import ui.theme.account_string
 import ui.theme.sign_out_string
-
 @Composable
 fun dashboardScreen(onSignOut: () -> Unit) {
     val currentFunc = remember {
@@ -57,13 +55,13 @@ fun dashboardScreen(onSignOut: () -> Unit) {
     Row (
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(BACKGROUND_COLOR)
     ) {
         Column (
             modifier = Modifier
-                .width(166.dp)
+                .width(72.dp)
                 .fillMaxHeight()
-                .background(GRAY)
+                .background(LIGHT_PINK_COLOR)
         ) {
             RogoSpace(87)
             Column (
@@ -105,40 +103,6 @@ fun dashboardScreen(onSignOut: () -> Unit) {
         ) {
             Column (
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(LIGHT_GRAY)
-            ) {
-                Row (
-                    modifier = Modifier
-                        .width(IntrinsicSize.Min)
-                        .align(Alignment.End)
-                        .padding(end = 30.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = account_string,
-                        fontSize = Subtitile1.sp,
-                        color = Color.Black,
-                        fontFamily = Roboto
-                    )
-                    RogoSpace(4)
-                    Icon(
-                        Icons.Default.Person,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(4.dp)
-                            .size(40.dp)
-                    )
-                }
-            }
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(0.5.dp)
-                    .background(GRAY)
-            )
-            Column (
-                modifier = Modifier
                     .fillMaxSize()
                     .padding(30.dp)
             ) {
@@ -163,7 +127,6 @@ fun generalFunctionViewHolder(currentFunc: MutableState<GeneralFunction>) {
     }
     LazyColumn(
         modifier = Modifier
-            .padding(16.dp)
             .fillMaxSize()
     ) {
         items(generalFunctionList.entries.toList()) { entry ->
@@ -185,24 +148,19 @@ fun generalFunctionItem(entry: Map.Entry<GeneralFunction, Boolean>, onItemClick:
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    if (entry.value) Color.Black else Color.White,
-                    RoundedCornerShape(16.dp)
-                )
-                .clip(RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(8.dp))
                 .clickable {
                     onItemClick.invoke(entry.key)
                 }
         ) {
-            Text(
-                text = entry.key.label,
-                fontSize = Subtitile1.sp,
-                fontFamily = Roboto,
-                color = if (entry.value) Color.White else Color.Black,
-                textAlign = TextAlign.Center,
+            Icon(
+                Icons.Filled.Home,
+                "",
+                tint = if (entry.value) ORANGE_COLOR else GRAY,
                 modifier = Modifier
+                    .padding(vertical = 14.dp)
+                    .size(18.dp)
                     .align(Alignment.Center)
-                    .padding(vertical = 8.dp)
             )
         }
         RogoSpace(4)

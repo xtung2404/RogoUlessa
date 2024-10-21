@@ -61,7 +61,7 @@ fun main() = application {
         ) {
         SwingUtilities.invokeLater {
             val frame = this.window
-            frame.minimumSize = Dimension(1200, 600) // Set minimum width and height
+            frame.minimumSize = Dimension(1200, 600)
         }
         mainApplication()
     }
