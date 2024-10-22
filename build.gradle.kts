@@ -43,7 +43,10 @@ kotlin {
                 implementation("org.xerial:sqlite-jdbc:3.46.1.0")
                 //HTTP
                 implementation("com.squareup.okhttp3:okhttp:4.9.3")
-
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.6.4")
+                implementation("io.coil-kt:coil-compose:1.4.0") // Adjust the version if needed
+                implementation("io.coil-kt:coil-svg:1.4.0")
                 implementation("org.slf4j:slf4j-api:2.0.12")
                 implementation("org.slf4j:slf4j-simple:2.0.12")
                 implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
