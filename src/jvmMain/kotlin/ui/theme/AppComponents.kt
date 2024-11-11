@@ -1,6 +1,6 @@
 package ui.theme
 
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -38,6 +38,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
@@ -49,8 +51,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.sp
 import com.caverock.androidsvg.SVG
+import org.jetbrains.skia.Image
+import rogo.iot.module.rogocore.sdk.SmartSdk
+import java.awt.image.BufferedImage
+import java.io.File
 import java.io.InputStream
 import java.util.Locale
+import javax.imageio.ImageIO
 
 @Composable
 fun RogoOutlinedTextField(
@@ -286,3 +293,13 @@ fun dialogLoading(message: String, toShow: MutableState<Boolean>) {
         )
     }
 }
+
+//@Composable
+//fun SkikoImageExample(filePath: String) {
+//    val skiaImage = Image.makeFromEncoded(File(filePath).readBytes())
+//    Image(
+//        bitmap = skiaImage.toComposeImageBitmap(),
+//        contentDescription = "Skiko Image",
+//        modifier = Modifier.size(300.dp)
+//    )
+//}

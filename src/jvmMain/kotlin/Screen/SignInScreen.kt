@@ -135,6 +135,7 @@ fun signInScreen(onSignInSuccess: () -> Unit) {
                 RogoOutlinedTextField(
                     modifier = Modifier.weight(1f),
                     hint = username_string,
+                    text = email,
                     onValueChange = {
                         email = it
                     }
@@ -144,19 +145,13 @@ fun signInScreen(onSignInSuccess: () -> Unit) {
                 RogoOutlinedTextField (
                     modifier = Modifier.weight(1f),
                     hint = password_string,
+                    text = password,
                     onValueChange = {
                         password = it
                     }
                 )
             }
             Spacer(modifier = Modifier.size(34.dp))
-            RogoOutlinedTextFieldWithHintAbove(
-                hint = support_key,
-                onValueChange = {
-                    supportKey = it
-                }
-            )
-            RogoSpace(34)
             RogoButton(
                 text = "Sign in",
                 backgroundColor = BLUE,
@@ -166,7 +161,7 @@ fun signInScreen(onSignInSuccess: () -> Unit) {
                 onClick = {
                     toShowDialogLoading.value = true
                     loadingMessage = signing_in
-                    SmartSdk.signIn(null, email, null, "123456", object :
+                    SmartSdk.signIn(null, email, null, password, object :
                         AuthRequestCallback {
                         override fun onSuccess() {
                             onSignInSuccess.invoke()

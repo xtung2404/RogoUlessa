@@ -4,6 +4,7 @@ package Screen
 import Object.AcFanMode
 import Object.AcModeItem
 import Object.SensorLogItem
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,6 +34,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,11 +51,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -63,7 +66,6 @@ import rogo.iot.module.platform.ILogR
 import rogo.iot.module.platform.define.IoTAttribute
 import rogo.iot.module.platform.define.IoTDeviceType
 import rogo.iot.module.rogocore.sdk.SmartSdk
-import rogo.iot.module.rogocore.sdk.callback.SmartSdkDeviceStateCallback
 import rogo.iot.module.rogocore.sdk.entity.IoTDevice
 import rogo.iot.module.rogocore.sdk.entity.IoTGroup
 import rogo.iot.module.rogocore.sdk.entity.IoTObjState
@@ -84,7 +86,6 @@ import ui.theme.SEAWEED_COLOR
 import ui.theme.Subtitile1
 import ui.theme.Subtitile2
 import ui.theme.ac_control_string
-import ui.theme.add_group_string
 import ui.theme.brightness_string
 import ui.theme.choose_house_to_control_string
 import ui.theme.fan_mode_string
@@ -93,18 +94,13 @@ import ui.theme.group_list_string
 import ui.theme.humid_string
 import ui.theme.light_control_string
 import ui.theme.light_temp_string
-import ui.theme.no_available_device_string
 import ui.theme.off_string
 import ui.theme.on_string
-import ui.theme.presence_detected
 import ui.theme.presence_device_string
-import ui.theme.presence_undetected
 import ui.theme.rgb_color_string
 import ui.theme.temp_and_humid_sensor_string
 import ui.theme.temperature_string
 import utils.TimeUtils
-import java.sql.Time
-import java.util.Arrays
 import java.util.Locale
 
 @Composable
@@ -188,29 +184,6 @@ fun GroupManagementSection(
                     fontFamily = Roboto
                 )
             }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(4.dp))
-                    .clickable {
-
-                    }.padding(horizontal = 8.dp, vertical = 4.dp)
-            ) {
-                Icon(
-                    Icons.Default.Add,
-                    "",
-                    tint = ORANGE_COLOR,
-                    modifier = Modifier
-                        .size(24.dp)
-                )
-                Text(
-                    text = add_group_string,
-                    fontSize = Subtitile2.sp,
-                    color = ORANGE_COLOR,
-                    fontFamily = Roboto
-                )
-            }
-
         }
         RogoSpace(24)
         Column(
@@ -404,17 +377,13 @@ fun GroupDetailItem(ioTGroup: IoTGroup) {
 
 @Composable
 fun ControlDeviceSection(deviceType: Int, currentGroupUuid: String?) {
-    val currentDeviceList = remember { mutableStateListOf<IoTDevice>() }
     val currentDevice = remember {
         mutableStateOf<IoTDevice?>(null)
     }
-    LaunchedEffect(deviceType, currentGroupUuid) {
-        val newDeviceList = SmartSdk.deviceHandler().all.filter {
-            it.groupId == currentGroupUuid && it.devType == deviceType
-        }
-        currentDeviceList.clear()
-        currentDeviceList.addAll(newDeviceList)
+    val newDeviceList = SmartSdk.deviceHandler().all.filter {
+        it.groupId == currentGroupUuid && it.devType == deviceType
     }
+    ILogR.D("OverviewScreen", "current_device_size", deviceType, newDeviceList.size)
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -428,6 +397,12 @@ fun ControlDeviceSection(deviceType: Int, currentGroupUuid: String?) {
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                Image(
+                    painter = painterResource(if (deviceType != IoTDeviceType.LIGHT) "icons/ic_ac.png" else "icons/ic_light.png"),
+                    null,
+                    modifier = Modifier.size(24.dp)
+                )
+                RogoSpace(8)
                 Text(
                     text = if (deviceType != IoTDeviceType.LIGHT) ac_control_string else light_control_string,
                     color = Color.Black,
@@ -480,13 +455,13 @@ fun ControlDeviceSection(deviceType: Int, currentGroupUuid: String?) {
                         .padding(vertical = 4.dp, horizontal = 8.dp)
                 )
             }
-            RogoSpace(4)
+            RogoSpace(24)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
             ) {
-                ControlDeviceViewHolder(currentDeviceList, currentDevice)
+                ControlDeviceViewHolder(newDeviceList, currentDevice)
             }
         } else {
             when (currentDevice.value?.devType) {
@@ -538,7 +513,7 @@ fun DeviceControlItem(ioTDevice: IoTDevice, onItemClick: (IoTDevice) -> Unit) {
         delay(300)
         deviceState = SmartSdk.stateHandler().getObjState(ioTDevice.uuid)
         isOn = deviceState?.isOn == true
-        println("currentState $isOn")
+        ILogR.D("currentState", ioTDevice.uuid, ioTDevice.label, deviceState?.tempSet)
     }
     Row(
         modifier = Modifier
@@ -559,16 +534,14 @@ fun DeviceControlItem(ioTDevice: IoTDevice, onItemClick: (IoTDevice) -> Unit) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        if (ioTDevice.devType != IoTDeviceType.LIGHT) {
-            deviceState?.let { state ->
-                Text(
-                    text = "${state.temp}°C",
-                    fontSize = Headline6.sp,
-                    color = if (isOn) ORANGE_COLOR else ORANGE_DISABLED_COLOR,
-                    fontFamily = Roboto
-                )
-            }
-            RogoSpace(12)
+        RogoSpace(12)
+        deviceState?.let { state ->
+            Text(
+                text = if (ioTDevice.devType != IoTDeviceType.LIGHT) "${state.tempSet}°C" else "",
+                fontSize = Headline6.sp,
+                color = if (isOn) ORANGE_COLOR else ORANGE_DISABLED_COLOR,
+                fontFamily = Roboto
+            )
         }
         Switch(
             isOn,
@@ -603,11 +576,20 @@ fun ControlACSection(currentDevice: IoTDevice?, onNavBack: () -> Unit) {
         SmartSdk.stateHandler().pingDeviceState(currentDevice?.uuid)
         delay(300)
         val state = SmartSdk.stateHandler().getObjState(currentDevice?.uuid)
-        state.let {
-            currentMode = it.mode
-            currentFanMode = it.fanSpeed
-            currentTemp = it.tempSet
-            isOn = it.isOn
+        ILogR.D("OverviewScreen", "current_ac_state", Gson().toJson(state))
+        if (state != null) {
+            state.mode.let { mode ->
+                currentMode = mode
+            }
+            state.fanSpeed.let { fanSpeed ->
+                currentFanMode = fanSpeed
+            }
+            state.tempSet.let { temp ->
+                currentTemp = temp
+            }
+            state.isOn.let { on ->
+                isOn = on
+            }
         }
     }
     val acModeList = remember {
@@ -632,10 +614,9 @@ fun ControlACSection(currentDevice: IoTDevice?, onNavBack: () -> Unit) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                Icons.Default.ArrowBack,
-                "",
-                tint = Color.Black,
+            Image(
+                painterResource("icons/ic_back.png"),
+                contentDescription = null,
                 modifier = Modifier
                     .size(24.dp)
                     .clickable {
@@ -666,9 +647,9 @@ fun ControlACSection(currentDevice: IoTDevice?, onNavBack: () -> Unit) {
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    Icons.Default.Add,
-                    "",
+                Image(
+                    painter = painterResource("icons/ic_minus.png"),
+                    contentDescription = "Image from Resources",
                     modifier = Modifier
                         .size(24.dp)
                         .clickable {
@@ -676,6 +657,7 @@ fun ControlACSection(currentDevice: IoTDevice?, onNavBack: () -> Unit) {
                                 return@clickable
                             }
                             currentTemp -= 1
+                            isOn = true
                             SmartSdk.controlHandler().controlAc(
                                 currentDevice?.uuid,
                                 isOn,
@@ -684,15 +666,14 @@ fun ControlACSection(currentDevice: IoTDevice?, onNavBack: () -> Unit) {
                                 currentFanMode,
                                 null
                             )
-                        },
-                    tint = Color.Black
+                        }
                 )
                 RogoSpace(24)
                 Text(
                     text = "${currentTemp}°C",
                     fontSize = Headline4.sp,
                     fontFamily = Roboto,
-                    color = ORANGE_COLOR
+                    color = if (isOn) ORANGE_COLOR else ORANGE_DISABLED_COLOR
                 )
                 RogoSpace(24)
                 Icon(
@@ -705,6 +686,7 @@ fun ControlACSection(currentDevice: IoTDevice?, onNavBack: () -> Unit) {
                                 return@clickable
                             }
                             currentTemp += 1
+                            isOn = true
                             SmartSdk.controlHandler().controlAc(
                                 currentDevice?.uuid,
                                 isOn,
@@ -718,23 +700,24 @@ fun ControlACSection(currentDevice: IoTDevice?, onNavBack: () -> Unit) {
                 )
             }
             RogoSpace(8)
-            Icon(
-                Icons.Default.Settings,
-                "",
+            Image(
+                painter = painterResource("icons/ic_on_off.png"),
+                contentDescription = "Image from Resources",
                 modifier = Modifier
                     .background(ORANGE_COLOR, RoundedCornerShape(8.dp))
                     .clip(RoundedCornerShape(8.dp))
                     .clickable {
+                        isOn = !isOn
                         SmartSdk.controlHandler().controlDevicePower(
                             currentDevice?.uuid,
                             currentDevice?.elementIds,
-                            !isOn,
+                            isOn,
                             null
                         )
                     }
                     .padding(horizontal = 16.dp, vertical = 22.dp)
-                    .size(24.dp),
-                tint = Color.White
+                    .size(24.dp)
+
             )
         }
         RogoSpace(24)
@@ -862,24 +845,33 @@ fun ACFanModeViewHolder(
                     }
             ) {
                 AcFanModeItem(fanMode)
-                RogoSpace(8)
             }
+            RogoSpace(8)
         }
     }
 }
 
 @Composable
 fun AcFanModeItem(acFanModeItem: MutableMap.MutableEntry<AcFanMode, Boolean>) {
-    Text(
-        text = acFanModeItem.key.cmdName,
-        color = Color.Black,
-        fontFamily = Roboto,
-        fontSize = Button.sp,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        textAlign = TextAlign.Center
-    )
+    Row (
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            painter = painterResource( acFanModeItem.key.cmdImg!!),
+            contentDescription = null,
+            modifier = Modifier.size(18.dp)
+        )
+        Text(
+            text = acFanModeItem.key.cmdName,
+            color = Color.Black,
+            fontFamily = Roboto,
+            fontSize = Button.sp,
+            modifier = Modifier
+                .padding(vertical = 8.dp),
+        )
+    }
 }
 
 @Composable
@@ -910,7 +902,7 @@ fun ControlLightSection(currentDevice: IoTDevice?, onNavBack: () -> Unit) {
                 isOn,
                 currentBrightness,
                 currentKelvin,
-                Arrays.toString(currentHSV)
+                currentHSV.contentToString()
             )
         }
     }
@@ -922,10 +914,9 @@ fun ControlLightSection(currentDevice: IoTDevice?, onNavBack: () -> Unit) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                Icons.Default.ArrowBack,
-                "",
-                tint = Color.Black,
+            Image(
+                painter = painterResource("icons/ic_back.png"),
+                contentDescription = "Image from Resources",
                 modifier = Modifier
                     .size(24.dp)
                     .clickable {
@@ -957,7 +948,7 @@ fun ControlLightSection(currentDevice: IoTDevice?, onNavBack: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = String.format("%02d%%", (currentBrightness * 1000).toInt()),
+                    text = String.format("%02d%%", (currentBrightness * 100).toInt()),
                     color = Color.Black,
                     fontFamily = Roboto,
                     fontSize = Subtitile1.sp
@@ -999,7 +990,7 @@ fun ControlLightSection(currentDevice: IoTDevice?, onNavBack: () -> Unit) {
                     SmartSdk.controlHandler()
                         .controlDim(currentDevice?.uuid, false, currentBrightness, null)
                 },
-                valueRange = 0f..0.1f,
+                valueRange = 0f..1f,
                 modifier = Modifier
                     .fillMaxWidth()
             )
@@ -1166,13 +1157,23 @@ fun TempHumidInfoSection(currentGroupUuid: String?) {
             .background(BACKGROUND_COLOR, RoundedCornerShape(16.dp))
             .padding(20.dp)
     ) {
-        Text(
-            text = temp_and_humid_sensor_string,
-            fontSize = Subtitile1.sp,
-            color = Color.Black,
-            fontFamily = Roboto,
-            modifier = Modifier.weight(1f)
-        )
+        Row (
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Image(
+                painter = painterResource("icons/ic_sensor.png"),
+                null,
+                modifier = Modifier.size(24.dp)
+            )
+            RogoSpace(8)
+            Text(
+                text = temp_and_humid_sensor_string,
+                fontSize = Subtitile1.sp,
+                color = Color.Black,
+                fontFamily = Roboto,
+                modifier = Modifier.weight(1f)
+            )
+        }
         RogoSpace(24)
         Row(
             modifier = Modifier
@@ -1234,13 +1235,24 @@ fun PresenceInfoSection(currentGroupUuid: String?) {
             .background(BACKGROUND_COLOR, RoundedCornerShape(8.dp))
             .padding(20.dp)
     ) {
-        Text(
-            text = presence_device_string,
-            fontSize = Headline6.sp,
-            color = Color.Black,
-            fontFamily = Roboto
-        )
-        RogoSpace(4)
+        Row (
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource("icons/ic_presence.png"),
+                null,
+                modifier = Modifier.size(24.dp)
+            )
+            RogoSpace(8)
+            Text(
+                text = presence_device_string,
+                fontSize = Subtitile1.sp,
+                color = Color.Black,
+                fontFamily = Roboto
+            )
+        }
+        RogoSpace(24)
         presenceDevice?.let {
             PresenceLogViewHolder(it)
         }
@@ -1254,7 +1266,7 @@ fun PresenceLogViewHolder(device: IoTDevice) {
     }
     LaunchedEffect(device) {
         SmartSdk.stateHandler().pingLogSensorDevice(
-            device?.uuid,
+            device.uuid,
             device.elementInfos.filter {
                 !it.value.attrs.contains(IoTAttribute.ONOFF)
             }.entries.first().key,

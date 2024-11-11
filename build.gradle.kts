@@ -34,6 +34,7 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)
+//                implementation("org.jetbrains.compose.ui:ui-graphics:1.3.0")
                 implementation("com.google.code.gson:gson:2.9.0")
                 implementation("org.json:json:20240205")
                 implementation("org.jetbrains:annotations:23.1.0")
@@ -61,7 +62,7 @@ compose.desktop {
         mainClass = "MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg)
-            packageName = "ThingEdges"
+            packageName = "ThingEdgesDesktop"
             modules("jdk.crypto.ec")
             modules("java.sql")
 

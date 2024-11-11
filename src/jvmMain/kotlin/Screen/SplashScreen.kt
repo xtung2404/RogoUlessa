@@ -19,9 +19,9 @@ import java.io.File
 fun splashScreen(requestCallback: RequestCallback<Boolean>) {
     val TAG = "SplashScreen"
     val appDataPath = if (System.getProperty("os.name").startsWith("Mac")) {
-        System.getProperty("user.home") + "/Library/Application Support/RogoUlesa/"
+        System.getProperty("user.home") + "/Library/Application Support/ThingEdgesDesktop/"
     } else {
-        System.getenv("APPDATA") + "\\RogoUlesa\\"
+        System.getenv("APPDATA") + "\\ThingEdgesDesktop\\"
     }
     var partner by remember {
         mutableStateOf("Rogo")

@@ -11,10 +11,10 @@ enum class AcFanMode (
     val cmdName: String,
     val cmdImg: String?= null
 ) {
-    AUTO(IoTCmdConst.FAN_SPEED_AUTO, auto_string, null),
-    LOW(IoTCmdConst.FAN_SPEED_LOW, low_string, null),
-    MED(IoTCmdConst.FAN_SPEED_NORMAL, med_string, null),
-    HIGH(IoTCmdConst.FAN_SPEED_HIGH, high_string, null);
+    AUTO(IoTCmdConst.FAN_SPEED_AUTO, auto_string,"icons/ic_fan_mode.png"),
+    LOW(IoTCmdConst.FAN_SPEED_LOW, low_string,"icons/ic_fan_low.png"),
+    MED(IoTCmdConst.FAN_SPEED_NORMAL, med_string,"icons/ic_fan_medium.png"),
+    HIGH(IoTCmdConst.FAN_SPEED_HIGH, high_string,"icons/ic_fan_high.png");
     companion object {
         fun getAcFanModeList() = listOf(
             AUTO, LOW, MED, HIGH
